@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head> </head>
+
+<body>
+    <div class="card">
+        <div class="search">
+            <input type="text" name="" id="" value="" placeholder="Enter city name" spellcheck="false" />
+            <button><img src="https://documentviewer.herokuapp.com/images/docviewer90_2.png" alt="" class="img" /></button>
+        </div>
+        <div class="datetime">
+            <p id="date"></p>
+            <p id="time"></p>
+        </div>
+        <div class="error">
+            <p>Invalid city name</p>
+        </div>
+        <div class="weather">
+            <img src="https://c.tadst.com/gfx/w/svg/wt-18.svg" alt="" class="image" />
+            <h1 class="temp">22°c</h1>
+            <h2 class="city">New York</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="https://img.freepik.com/free-icon/heating_318-51153.jpg?" alt="" class="image1" />
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>Humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="https://img.freepik.com/free-icon/wind_318-107069.jpg?" alt="" class="image1" />
+                    <div>
+                        <p class="wind">15 km/h</p>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" charset="utf-8">
+        const apikey = "d324042ed9b44aae4bc246eb828cfa91";
+        const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+        const searchBox = document.querySelector(".search input");
+        const searchBtn = document.querySelector(".search button");
+        const weatherIcon = document.querySelector(".image");
+        const dateElement = document.getElementById("date");
+        const timeElement = document.getElementById("time");
+
+        // Function to update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            const formattedDate = now.toLocaleDateString('en-US', options);
+            const formattedTime = now.toLocaleTimeString('en-US');
+            dateElement.textContent = formattedDate;
+            timeElement.textContent = formattedTime;
+        }
+
+        // Function to fetch weather data
+        async function checkWeather(city) {
+            const response = await fetch(apiUrl + city + `&appid=${apikey}`);
+
+            if (response.status == 404) {
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".weather").style.display = "none";
+            } else {
+                var data = await response.json();
+
+                document.querySelector(".city").innerHTML = data.name;
+                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°c";
+                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+                document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+                if (data.weather[0].main == "Clouds") {
+                    weatherIcon.src = "http://openweathermap.org/img/wn/02d@4x.png";
+                } else if (data.weather[0].main == "Clear") {
+                    weatherIcon.src = "https://c.tadst.com/gfx/w/svg/wt-1.svg";
+                } else if (data.weather[0].main == "Rain") {
+                    weatherIcon.src = "http://openweathermap.org/img/wn/10d@4x.png";
+                } else if (data.weather[0].main == "Mist") {
+                    weatherIcon.src = "https://c.tadst.com/gfx/w/svg/wt-2.svg";
+                }
+
+                document.querySelector(".weather").style.display = "block";
+                document.querySelector(".error").style.display = "none"
+            }
+        }
+
+        // Event listener for search button
+        searchBtn.addEventListener("click", () => {
+            checkWeather(searchBox.value);
+        });
+
+        // Initial call to update date and time
+        updateDateTime();
+
+        // Update date and time every second
+        setInterval(updateDateTime, 1000);
+    </script>
+
+
+</body>
+
+</html>
